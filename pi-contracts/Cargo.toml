@@ -9,6 +9,9 @@ crate-type = ["cdylib"]
 [dependencies]
 soroban-sdk = "21.0.0" # النسخة المتوافقة مع معايير شبكة Pi Protocol 23
 
+[dev-dependencies]
+soroban-sdk = { version = "21.0.0", features = ["testutils"] }
+
 [profile.release]
 opt-level = "z"
 overflow-checks = true
