@@ -1,0 +1,14 @@
+[package]
+name = "be-well-contracts"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = "21.0.0" # النسخة المتوافقة مع معايير شبكة Pi Protocol 23
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
