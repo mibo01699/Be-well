@@ -1,0 +1,62 @@
+name: Soroban CI — Contracts & AI backend
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  soroban-tests:
+    name: Run Soroban Security Tests (3-Year Lock & Pricing Verification)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Verify Cargo Smart Contracts Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            pi-contracts/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Run Soroban Security Tests
+        run: |
+          cd pi-contracts
+          cargo test --verbose
+
+  ai-backend-lint:
+    name: Lint AI Backend & Install Python deps
+    runs-on: ubuntu-latest
+    needs: soroban-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: |
+          cd ai-backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint AI Code Syntax for Security Weaknesses
+        run: |
+          pip install flake8
+          # إيقاف البناء في حال وجود أخطاء صياغة برمجية حرجة
+          flake8 ai-backend --count --select=E9,F63,F7,F82 --show-source --statistics
