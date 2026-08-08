@@ -1,46 +1,69 @@
-use soroban_sdk::{contract, contractimpl, Env, Address, Map, Symbol, panic_with_error};
+#![no_std]
+use soroban_sdk::{contract, contractimpl, Env, Address, i128, Map, Symbol, Vec};
+
+const SHARE_STATUS_ACTIVE: Symbol = symbol_short!("ACTIVE");
+const SHARE_STATUS_LOCKED: Symbol = symbol_short!("LOCKED");
+const SHARE_STATUS_DISTRIBUTED: Symbol = symbol_short!("DIST");
 
 #[contract]
-pub struct BeWellSharesContract;
+pub struct SharesContract;
 
 #[contractimpl]
-impl BeWellSharesContract {
-    
-    // إيداع عملات Pi في المجمع للحصول على أسهم استثمارية
-    pub fn invest_pool(env: Env, investor: Address, amount_pi: i128) {
-        investor.require_auth();
+impl SharesContract {
+    /// إنشاء مجمع استثماري جديد
+    pub fn create_pool(
+        env: Env,
+        name: String,
+        description: String,
+        total_shares: i128,       // إجمالي الأسهم المطروحة
+        price_per_share: i128,    // السعر بـ YER
+        lockup_period: u64,       // فترة الحجز (سنوات)
+        distribution_after: u64,  // التوزيع بعد (سنوات)
+    ) -> u64 {
+        let pool_id = env.prng().u64();
+        let pool_data = Map::new(&env);
+        pool_data.set(Symbol::new(&env, "name"), name);
+        pool_data.set(Symbol::new(&env, "description"), description);
+        pool_data.set(Symbol::new(&env, "total_shares"), total_shares);
+        pool_data.set(Symbol::new(&env, "price_per_share"), price_per_share);
+        pool_data.set(Symbol::new(&env, "lockup_period"), lockup_period);
+        pool_data.set(Symbol::new(&env, "distribution_after"), distribution_after);
+        pool_data.set(Symbol::new(&env, "available_shares"), total_shares);
+        pool_data.set(Symbol::new(&env, "status"), SHARE_STATUS_ACTIVE);
+        pool_data.set(Symbol::new(&env, "created_at"), env.ledger().timestamp());
         
-        // جلب سجل الأسهم الحالي للمستثمر أو تعيينه لـ 0 إذا كان جديداً
-        let mut investor_shares: Map<Address, i128> = env.storage().instance().get(&Symbol::new(&env, "shares")).unwrap_or(Map::new(&env));
-        let current_shares = investor_shares.get(investor.clone()).unwrap_or(0);
-        
-        // تحديث إجمالي الأسهم (تحويل الـ Pi المودع إلى حصص بالتناسب 1:1 كمثال)
-        investor_shares.set(investor.clone(), current_shares + amount_pi);
-        env.storage().instance().set(&Symbol::new(&env, "shares"), &investor_shares);
-
-        // تحديث إجمالي السيولة في صندوق التأمين الاحتياطي
-        let total_pool: i128 = env.storage().instance().get(&Symbol::new(&env, "total_pool")).unwrap_or(0);
-        env.storage().instance().set(&Symbol::new(&env, "total_pool"), &(total_pool + amount_pi));
+        env.storage().persistent().set(&pool_id, &pool_data);
+        pool_id
     }
 
-    // توزيع الأرباح التلقائي على حاملي الأسهم (يتم استدعاؤه دورياً بواسطة المنصة)
-    pub fn distribute_dividends(env: Env, total_profit_pi: i128) {
-        // حماية برمجية: لا يتم استدعاء هذا الأمر إلا بتوقيع جهة التدقيق العليا (KYG)
-        let auditor: Address = env.storage().instance().get(&Symbol::new(&env, "admin_auditor")).expect("Auditor not set");
-        auditor.require_auth();
+    /// شراء أسهم (اكتتاب)
+    pub fn buy_shares(
+        env: Env,
+        pool_id: u64,
+        buyer: Address,
+        amount: i128,
+    ) {
+        let mut pool_data: Map<Symbol, i128> = env.storage().persistent().get(&pool_id).unwrap();
+        let available: i128 = pool_data.get(Symbol::new(&env, "available_shares")).unwrap();
+        assert!(amount <= available, "لا يوجد عدد كافٍ من الأسهم");
+        
+        // حساب القيمة الإجمالية
+        let price: i128 = pool_data.get(Symbol::new(&env, "price_per_share")).unwrap();
+        let total_cost = amount * price;
+        
+        // منطق تحويل المبلغ (سيتم ربطه بـ BIGISH-YER)
+        // تسجيل عملية الشراء في دفتر الأستاذ
+        pool_data.set(Symbol::new(&env, "available_shares"), available - amount);
+        env.storage().persistent().set(&pool_id, &pool_data);
+    }
 
-        let investor_shares: Map<Address, i128> = env.storage().instance().get(&Symbol::new(&env, "shares")).expect("No investors found");
-        let total_pool: i128 = env.storage().instance().get(&Symbol::new(&env, "total_pool")).unwrap_or(1); // منع القسمة على صفر
-
-        // حلقة تكرارية ذكية لتوزيع الأرباح بالتناسب مع نسبة أسهم كل مستثمر
-        for (investor, shares) in investor_shares.iter() {
-            // المعادلة: الأرباح المستحقة = (أسهم المستثمر / إجمالي السيولة) * إجمالي الأرباح الموزعة
-            let dividend_payout = (shares * total_profit_pi) / total_pool;
-            
-            if dividend_payout > 0 {
-                // هنا يتم تفعيل الـ Pi SDK Token client لتحويل الأرباح الفورية لمحفظة المستثمر
-                // token_client.transfer(&env.current_contract_address(), &investor, &dividend_payout);
-            }
-        }
+    /// توزيع الأرباح المؤجلة (يستدعى بعد فترة الحجز)
+    pub fn distribute_dividends(
+        env: Env,
+        pool_id: u64,
+        total_profit: i128,
+    ) {
+        // المنطق المعقد لتوزيع الأرباح بناءً على نسبة المساهمة
+        // مع الحفاظ على توجيه جزء لتطوير البنية التحتية بعد السنة الثالثة
     }
 }
