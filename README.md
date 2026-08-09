@@ -94,5 +94,109 @@ Benefits of This Architecture
 · Enhanced Security: Prevents race conditions and partial completions.
 · Improved Maintainability: Changes to business logic are isolated to a single contract.
 · Full Traceability: Every step of a process is recorded on-chain.
+```markdown
+# Be-well: Decentralized Multi-Layered Insurance Platform
 
----
+[![Pi Network](https://img.shields.io/badge/Pi%20Network-Protocol%2025-blue)](https://pinetwork.com)
+[![Soroban](https://img.shields.io/badge/Soroban-Rust-orange)](https://soroban.stellar.org)
+[![MIT License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+## Overview
+
+Be-well is a comprehensive, decentralized insurance ecosystem built on the Pi Network (Protocol 25) using Soroban Smart Contracts. The platform revolutionizes health and transport insurance through:
+
+- **Multi-Layered Governance** (KYC/KYB/KYG)
+- **Predictive AI Risk Engine**
+- **Deterministic Claims Settlement**
+- **Tokenized Investment Shares**
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Rust 1.75+
+- Soroban CLI 20.0.0+
+- Python 3.11+
+- Docker (optional)
+
+### Installation
+
+```bash
+git clone https://github.com/mibo01699/Be-well.git
+cd Be-well
+```
+
+Deploy Smart Contracts
+
+```bash
+cd pi-contracts
+cargo build --target wasm32-unknown-unknown --release
+```
+
+Run AI Backend
+
+```bash
+cd ai-backend
+pip install -r requirements.txt
+python app.py
+```
+
+📂 Repository Structure
+
+```
+Be-well/
+├── pi-contracts/           # Soroban Smart Contracts (Rust)
+│   ├── src/
+│   │   ├── orchestrator.rs # Central coordination
+│   │   ├── insurance.rs    # Policy engine
+│   │   ├── shares.rs       # Liquidity pools
+│   │   └── roles.rs        # KYC/KYB/KYG logic
+│   └── tests/
+├── ai-backend/             # AI Off-chain Infrastructure
+│   ├── app.py              # FastAPI gateway
+│   ├── risk_engine.py      # Risk assessment
+│   └── fraud_detector.py   # Fraud detection
+├── scripts/
+│   ├── deploy_testnet.sh   # Deployment script
+│   └── integration_test.py # Integration tests
+└── docs/
+```
+
+🛠️ Tech Stack
+
+· Blockchain: Rust, WASM, Soroban SDK (Pi Network Protocol 25)
+· AI/Backend: Python 3.11, FastAPI, Scikit-Learn
+· Frontend: React Native, Pi SDK
+
+🔒 Security
+
+Biometric data is processed locally on client-side only. Blockchain validates via cryptographic hashes (IPFS).
+
+🧪 Testing
+
+```bash
+# Test smart contracts
+cd pi-contracts
+cargo test
+
+# Test integration
+python scripts/integration_test.py
+```
+
+📊 Deployment Status
+
+Component Status Network
+Smart Contracts ✅ Deployed Testnet
+AI Backend ✅ Active Cloud
+Replit Workspace ✅ Live [Link]
+
+🤝 Contributing
+
+Please read CONTRIBUTING.md.
+
+📄 License
+
+MIT License - see LICENSE.
+
+📬 Contact
+
