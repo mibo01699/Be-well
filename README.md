@@ -123,7 +123,6 @@ python scripts/integration_test.py
 ## 🤝 Community Contribution
 We welcome global ecosystem developers, node operators, and Web3 builders to collaborate on enhancing decentralized consumer safety nets. Please review our `CONTRIBUTING.md` guidelines for operational protocols regarding submitting issues, code refactoring, or security optimization requests.
 
----
 
 ## 📄 Open-Source Framework Licensing
 This project is open-source and structured to adapt seamlessly to collaborative ecosystem software open-source licenses (PiOS / MIT), ensuring the codebase remains protected as a shared public utility asset.
