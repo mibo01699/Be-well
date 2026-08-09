@@ -67,3 +67,113 @@ impl SharesContract {
         // مع الحفاظ على توجيه جزء لتطوير البنية التحتية بعد السنة الثالثة
     }
 }
+#![no_std]
+use soroban_sdk::{contract, contractimpl, Address, Env, Vec, Symbol};
+
+#[derive(Clone)]
+pub struct ShareHolder {
+    pub address: Address,
+    pub shares: i128,
+    pub staked_amount: i128,
+    pub rewards_earned: i128,
+}
+
+#[contract]
+pub struct SharesContract;
+
+#[contractimpl]
+impl SharesContract {
+    pub fn stake(
+        env: Env,
+        investor: Address,
+        amount: i128,
+    ) {
+        investor.require_auth();
+        
+        let shareholder: Option<ShareHolder> = env.storage()
+            .persistent()
+            .get(&Symbol::new(&env, "shareholder"), &investor);
+        
+        match shareholder {
+            Some(mut holder) => {
+                holder.staked_amount += amount;
+                holder.shares += amount / 100; // 1 share = 100 Pi
+                env.storage().persistent().set(
+                    &Symbol::new(&env, "shareholder"),
+                    &investor,
+                    &holder,
+                );
+            }
+            None => {
+                let new_holder = ShareHolder {
+                    address: investor.clone(),
+                    shares: amount / 100,
+                    staked_amount: amount,
+                    rewards_earned: 0,
+                };
+                env.storage().persistent().set(
+                    &Symbol::new(&env, "shareholder"),
+                    &investor,
+                    &new_holder,
+                );
+            }
+        }
+    }
+    
+    pub fn withdraw(
+        env: Env,
+        investor: Address,
+    ) -> i128 {
+        investor.require_auth();
+        
+        let shareholder: ShareHolder = env.storage()
+            .persistent()
+            .get(&Symbol::new(&env, "shareholder"), &investor)
+            .unwrap();
+        
+        let total = shareholder.staked_amount + shareholder.rewards_earned;
+        
+        // Clear storage
+        env.storage().persistent().remove(
+            &Symbol::new(&env, "shareholder"),
+            &investor,
+        );
+        
+        total
+    }
+    
+    pub fn get_shareholder_info(
+        env: Env,
+        investor: Address,
+    ) -> ShareHolder {
+        env.storage()
+            .persistent()
+            .get(&Symbol::new(&env, "shareholder"), &investor)
+            .unwrap_or(ShareHolder {
+                address: investor,
+                shares: 0,
+                staked_amount: 0,
+                rewards_earned: 0,
+            })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use soroban_sdk::Env;
+
+    #[test]
+    fn test_stake_and_withdraw() {
+        let env = Env::default();
+        let investor = Address::generate(&env);
+        let contract_id = env.register_contract(None, SharesContract);
+        let client = SharesContractClient::new(&env, &contract_id);
+
+        client.stake(&investor, &1000);
+        
+        let info = client.get_shareholder_info(&investor);
+        assert_eq!(info.shares, 10);
+        assert_eq!(info.staked_amount, 1000);
+    }
+}
