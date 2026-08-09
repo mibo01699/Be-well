@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be-Well – التأمين الشامل اللامركزي</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <span class="logo">Be-Well</span>
+            <div>
+                <button class="btn-outline" onclick="showSection('dashboard')">لوحة التحكم</button>
+                <button class="btn-outline" onclick="showSection('policies')">وثائقي</button>
+                <button class="btn-primary" onclick="showSection('new-policy')">تأمين جديد</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- قسم إنشاء وثيقة جديدة -->
+        <section id="new-policy" class="section active">
+            <h2>شراء وثيقة تأمين جديدة</h2>
+            <form id="policy-form">
+                <div class="form-group">
+                    <label>نوع التأمين</label>
+                    <select id="policy-type">
+                        <option value="HEALTH">صحي</option>
+                        <option value="CAR">مركبات</option>
+                        <option value="TRAVEL">سفر</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>مبلغ التغطية (بـ Pi)</label>
+                    <input type="number" id="coverage" value="10000" required>
+                </div>
+                <div class="form-group">
+                    <label>القسط الشهري (بـ Pi)</label>
+                    <input type="number" id="premium" value="500" required>
+                </div>
+                <div class="form-group">
+                    <label>عنوان المحفظة (Pi Wallet)</label>
+                    <input type="text" id="holder-address" placeholder="GABC123..." required>
+                </div>
+                <button type="submit" class="btn-primary">شراء الوثيقة</button>
+            </form>
+            <div id="policy-result" class="result-box"></div>
+        </section>
+
+        <!-- قسم المطالبات وطلب الخدمة -->
+        <section id="claims" class="section">
+            <h2>تقديم مطالبة وطلب خدمة</h2>
+            <form id="claim-form">
+                <div class="form-group">
+                    <label>معرف الوثيقة (Policy ID)</label>
+                    <input type="number" id="claim-policy-id" required>
+                </div>
+                <div class="form-group">
+                    <label>مبلغ المطالبة (بـ Pi)</label>
+                    <input type="number" id="claim-amount" value="2000" required>
+                </div>
+                <div class="form-group">
+                    <label>وصف الخدمة المطلوبة</label>
+                    <input type="text" id="service-desc" value="تصليح مركبة بعد حادث" required>
+                </div>
+                <div class="form-group">
+                    <label>الموقع</label>
+                    <input type="text" id="service-location" value="صنعاء، اليمن" required>
+                </div>
+                <button type="submit" class="btn-primary">تقديم المطالبة</button>
+            </form>
+            <div id="claim-result" class="result-box"></div>
+        </section>
+
+        <!-- قسم تقييم المخاطر -->
+        <section id="risk" class="section">
+            <h2>تقييم المخاطر (AI)</h2>
+            <form id="risk-form">
+                <div class="form-group">
+                    <label>العمر</label>
+                    <input type="number" id="age" value="35" required>
+                </div>
+                <div class="form-group">
+                    <label>الجنس (0: أنثى، 1: ذكر)</label>
+                    <input type="number" id="gender" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label>أمراض سابقة (0: لا، 1: نعم)</label>
+                    <input type="number" id="pre-existing" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>نوع المركبة (0-4)</label>
+                    <input type="number" id="vehicle-type" value="2" required>
+                </div>
+                <div class="form-group">
+                    <label>المنطقة (0-4)</label>
+                    <input type="number" id="region" value="1" required>
+                </div>
+                <button type="submit" class="btn-primary">تقييم المخاطر</button>
+            </form>
+            <div id="risk-result" class="result-box"></div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
