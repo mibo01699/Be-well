@@ -13,7 +13,135 @@ use soroban_sdk::{contract, contractimpl, Env, Address, String, Vec, Map, Symbol
 // ============================================================
 const PROCESS_STATUS_INITIATED: Symbol = symbol_short!("INIT");
 const PROCESS_STATUS_POLICY_ACTIVE: Symbol = symbol_short!("P_ACT");
-const PROCESS_STATUS_CLAIM_SUBMITTED: Symbol = symbol_short!("C_SUB");
+const PROCESS_STATUS_CLAIM_SUBMITTED: Symbol =
+ symbol_short!("C_SUB");
+
+#![no_std]
+use soroban_sdk::{contract, contractimpl, Address, Env, String, Map, Symbol};
+
+#[derive(Clone, PartialEq)]
+pub enum PolicyStatus {
+    Active,
+    Expired,
+    Claimed,
+    Rejected,
+}
+
+#[derive(Clone)]
+pub struct Policy {
+    pub id: u64,
+    pub holder: Address,
+    pub policy_type: String,
+    pub coverage_amount: i128,
+    pub premium_paid: i128,
+    pub status: PolicyStatus,
+    pub issued_at: u64,
+    pub expires_at: u64,
+}
+
+#[contract]
+pub struct InsuranceContract;
+
+#[contractimpl]
+impl InsuranceContract {
+    pub fn create_policy(
+        env: Env,
+        holder: Address,
+        policy_type: String,
+        coverage_amount: i128,
+        premium_paid: i128,
+        duration_days: u64,
+    ) -> u64 {
+        holder.require_auth();
+        
+        let now = env.ledger().timestamp();
+        let policy_id = env.prng().generate::<u64>();
+        
+        let policy = Policy {
+            id: policy_id,
+            holder,
+            policy_type,
+            coverage_amount,
+            premium_paid,
+            status: PolicyStatus::Active,
+            issued_at: now,
+            expires_at: now + (duration_days * 86400),
+        };
+        
+        env.storage().persistent().set(
+            &Symbol::new(&env, "policy"),
+            &policy_id,
+            &policy,
+        );
+        
+        policy_id
+    }
+    
+    pub fn submit_claim(
+        env: Env,
+        holder: Address,
+        policy_id: u64,
+        claim_details: Map<String, String>,
+    ) {
+        holder.require_auth();
+        
+        let policy: Policy = env.storage()
+            .persistent()
+            .get(&Symbol::new(&env, "policy"), &policy_id)
+            .unwrap();
+        
+        let now = env.ledger().timestamp();
+        if now > policy.expires_at {
+            panic!("Policy expired");
+        }
+        
+        let updated_policy = Policy {
+            status: PolicyStatus::Claimed,
+            ..policy
+        };
+        
+        env.storage().persistent().set(
+            &Symbol::new(&env, "policy"),
+            &policy_id,
+            &updated_policy,
+        );
+    }
+    
+    pub fn get_policy(
+        env: Env,
+        policy_id: u64,
+    ) -> Policy {
+        env.storage()
+            .persistent()
+            .get(&Symbol::new(&env, "policy"), &policy_id)
+            .unwrap()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use soroban_sdk::Env;
+
+    #[test]
+    fn test_create_policy() {
+        let env = Env::default();
+        let holder = Address::generate(&env);
+        let contract_id = env.register_contract(None, InsuranceContract);
+        let client = InsuranceContractClient::new(&env, &contract_id);
+
+        let policy_id = client.create_policy(
+            &holder,
+            &String::from_str(&env, "HEALTH"),
+            &10000,
+            &500,
+            &365,
+        );
+        
+        assert!(policy_id > 0);
+    }
+}
+
 const PROCESS_STATUS_SERVICE_REQUESTED: Symbol = symbol_short!("S_REQ");
 const PROCESS_STATUS_AWARDED: Symbol = symbol_short!("AWARD");
 const PROCESS_STATUS_SERVICE_COMPLETED: Symbol = symbol_short!("S_COM");
