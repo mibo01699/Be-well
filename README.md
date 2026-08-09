@@ -1,138 +1,136 @@
-# Be-Well: منصة التأمين الشامل اللامركزي على Pi Network
+# Be-Well Protocol 🦅
+**The First Decentralized Insurance Utility Platform Powered by Soroban-WASM Architecture & AI Automated Underwriting**
 
-[![Pi Network](https://img.shields.io/badge/Pi%20Network-Protocol%2025-blue)](https://pinetwork.com)
+[![Pi Network](https://shields.io)](https://pinetwork.com)
 [![Soroban](https://img.shields.io/badge/Soroban-Rust-orange)](https://soroban.stellar.org)
-[![MIT License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![PiOS License](https://shields.io)](LICENSE)
 
-**Be-Well** هي أول منصة تأمين شامل لا مركزية على بلوكشين Pi، تدمج العقود الذكية، الذكاء الاصطناعي، وأنظمة التوثيق متعددة المستويات لتقديم خدمات تأمينية سريعة وشفافة وعادلة.
+**Be-Well** is an open-source, zero-speculation decentralized insurance primitive engineered natively for high-performance WebAssembly (WASM) ecosystem runtimes utilizing the **Soroban Smart Contract Engine**. Developed under the leadership of the **Arab Eagle Company (A.E.C)**, the platform directly delivers real-world consumer utility for daily peer-to-peer applications, completely shifting away from speculative tokenomics.
 
----
-
-## 📖 نظرة عامة
-
-- **التأمين كمنفعة مجتمعية:** خدمة رقمية شفافة وميسرة، متاحة لكل رائد في نظام Pi البيئي.
-- **الحوكمة اللامركزية والاستثمار المجتمعي:** نظام أسهم استثمارية يشارك فيه المجتمع في تمويل وإدارة المنصة.
-- **الامتثال الذكي والمرن:** متوافقة مع القوانين المحلية والدولية عبر آليات مرنة.
-
-**للاطلاع على الرؤية المتكاملة والتفاصيل التقنية، راجع:** [الورقة البيضاء (Whitepaper)](docs/WHITEPAPER.md)
+By combining high-performance Rust smart contracts with an autonomous, localized off-chain AI Risk Assessment Engine (FastAPI/PyTorch), Be-Well automates micro-insurance policy lifecycles, real-time risk classification, and decentralized community risk pooling. All financial settlements, micro-premiums, and operational routing are architected to integrate seamlessly with ecosystem wallet infrastructures and native asset metrics, driving organic transaction velocity.
 
 ---
 
-## 🚀 البدء السريع
+## 📖 Key Architectural Pillars
 
-### المتطلبات الأساسية
+- **Insurance as an Organic Ecosystem Utility:** A non-speculative, fully transparent parametric micro-insurance framework accessible directly within Web3 browser environments to protect everyday participants.
+- **Community-Backed Risk Pools & Governance:** A fractionalized asset allocation mechanism enabling verified community stakeholders to securely fund insurance tranches and earn algorithmic yields from premium baselines.
+- **Smart Data & Privacy Compliance:** Engineered to enforce multi-tier user identity parameters via native Web3 KYC ecosystem databases, completely eliminating invasive biometric tracking or external data exposures.
 
-- Rust 1.75+
-- Soroban CLI 20.0.0+
-- Python 3.11+
-- Docker (اختياري)
+**For a comprehensive breakdown of our technical vision, please refer to our:** [Whitepaper](docs/WHITEPAPER.md)
 
-### التثبيت والتشغيل
+---
 
-1.  **نسخ المستودع:**
+## 🚀 Quick Start & Integration Staging
+
+### Technical Prerequisites
+*   Rust 1.75+
+*   Soroban CLI 20.0.0+ (Configured for Protocol 26 execution standards)
+*   Python 3.11+
+*   Docker (Optional for server containment)
+
+### Installation & Local Setup
+
+1.  **Clone the Repository:**
     ```bash
     git clone https://github.com/mibo01699/Be-well.git
     cd Be-well
     ```
 
-2.  **بناء العقود الذكية:**
+2.  **Compile the On-Chain Smart Contracts:**
     ```bash
     cd pi-contracts
     cargo build --target wasm32-unknown-unknown --release
     ```
 
-3.  **تشغيل الـ AI Backend:**
+3.  **Launch the Off-Chain AI Underwriting Engine:**
     ```bash
     cd ../ai-backend
     pip install -r requirements.txt
     python app.py
     ```
 
-4.  **تشغيل الـ API Gateway:**
+4.  **Execute the Middleware Integration Gateway:**
     ```bash
     cd ../backend
     pip install -r requirements.txt
     python api_gateway.py
     ```
 
-5.  **فتح الواجهة الأمامية:**
-    افتح ملف `frontend/index.html` في متصفحك.
+5.  **Serve the User Interface Sandbox:**
+    Open `frontend/index.html` inside your development sandbox or web browser environment equipped with ecosystem payment simulators [1.2.1، 1.3.4].
 
 ---
 
-## 📂 هيكل المستودع
+## 📂 Repository Blueprint
 
-```
-
+```text
 Be-well/
-├── pi-contracts/           # العقود الذكية (Rust/Soroban)
+├── pi-contracts/           # On-Chain Logic Layer (Rust/Soroban WASM)
 │   ├── src/
-│   │   ├── orchestrator.rs # عقد التنسيق المركزي
-│   │   ├── insurance.rs    # عقد إدارة وثائق التأمين
-│   │   ├── shares.rs       # عقد الأسهم الاستثمارية
-│   │   └── roles.rs        # منطق التوثيق (KYC/KYB/KYG)
-│   └── tests/              # اختبارات العقود
-├── ai-backend/             # نظام الذكاء الاصطناعي الخلفي
-│   ├── app.py              # واجهة برمجة تطبيقات (API) FastAPI
-│   ├── risk_engine.py      # محرك تقييم المخاطر
-│   └── requirements.txt    # تبعيات Python
-├── backend/                # واجهة برمجة تطبيقات (API) الوسيطة
-│   ├── api_gateway.py      # يربط AI بالعقود الذكية
+│   │   ├── orchestrator.rs # Central execution hub & global state manager
+│   │   ├── insurance.rs    # Core policy lifecycles & micro-premium locks
+│   │   ├── shares.rs       # Fractional community risk pool allocations
+│   │   └── roles.rs        # Integrated compliance & ecosystem KYC verification
+│   └── tests/              # Contract-specific automated testing suites
+├── ai-backend/             # Machine Learning Underwriting Subsystem
+│   ├── app.py              # Secure FastAPI endpoint wrapper
+│   ├── risk_engine.py      # PyTorch predictive underwriting models
+│   └── requirements.txt    # Python machine learning dependencies
+├── backend/                # Cryptographic Middleware Relayer
+│   ├── api_gateway.py      # Translates off-chain risk signatures into Soroban inputs
 │   └── requirements.txt
-├── frontend/               # النموذج الأولي للواجهة الأمامية
-│   ├── index.html
-│   ├── style.css
-│   └── app.js
-├── docs/                   # الوثائق
-│   ├── WHITEPAPER.md       # الورقة البيضاء
-│   ├── BUSINESS_PLAN.md    # خطة العمل
-│   └── intro.md            # شرح الهندسة المعمارية
-├── scripts/                # نصوص مساعدة
-│   └── integration_test.py # اختبارات التكامل
-├── CONTRIBUTING.md         # دليل المساهمة
-├── LICENSE                 # رخصة المشروع (MIT)
-└── README.md               # هذا الملف
-
+├── frontend/               # Ecosystem Browser UI Sandbox
+│   ├── index.html          # Modular platform structure
+│   ├── style.css           # Clean visual parameters
+│   └── app.js              # Integrated with native Web3 browser payment SDK hooks
+├── docs/                   # Platform Architecture & Governance Documentation
+│   ├── WHITEPAPER.md       # Comprehensive protocol whitepaper
+│   ├── BUSINESS_PLAN.md    # Real-world ecosystem monetization plan
+│   └── intro.md            # Advanced codebase flowcharts
+├── scripts/                # Verification Automation
+│   └── integration_test.py # Multi-layer integration checking scripts
+├── CONTRIBUTING.md         # Open-source community guidelines
+├── LICENSE                 # Public utility open-source licensing framework
+└── README.md               # Main repository documentation entry-point
 ```
 
 ---
 
-## 🛠️ التقنيات المستخدمة
+## 🛠️ Technology Stack & Frameworks
 
-- **طبقة البلوكشين:** Rust, WebAssembly (WASM), Soroban SDK (Pi Network Protocol 23).
-- **طبقة الذكاء الاصطناعي/الخلفية:** Python 3.11, FastAPI, Scikit-Learn, PyTorch.
-- **بيئة الواجهة الأمامية:** React Native (مستقبلاً), Pi SDK.
+- **Blockchain Layer:** Rust, WebAssembly (WASM), Soroban SDK (Configured for advanced network protocol compatibility).
+- **Artificial Intelligence / Machine Learning Pipeline:** Python 3.11, FastAPI, Scikit-Learn, PyTorch.
+- **Frontend Matrix:** Modular Web3 Sandbox Interface, integrated client-side Payment API plugins [1.2.1، 1.3.4].
 
 ---
 
-## 🧪 الاختبارات
+## 🧪 Testing Protocols
 
-لتشغيل اختبارات العقود الذكية:
+To run isolated unit tests for on-chain smart contracts:
 ```bash
 cd pi-contracts
 cargo test
 ```
 
-لتشغيل اختبارات التكامل (تتطلب تشغيل الخدمات محلياً):
-
+To execute end-to-end integration tests (requires all local microservices to be running concurrently):
 ```bash
 python scripts/integration_test.py
 ```
 
 ---
 
-🤝 المساهمة
-
-نرحب بمساهمات المجتمع! يرجى قراءة دليل المساهمة لمزيد من التفاصيل حول كيفية المشاركة.
-
----
-
-📄 الترخيص
-
-هذا المشروع مرخص تحت رخصة MIT.
+## 🤝 Community Contribution
+We welcome global ecosystem developers, node operators, and Web3 builders to collaborate on enhancing decentralized consumer safety nets. Please review our `CONTRIBUTING.md` guidelines for operational protocols regarding submitting issues, code refactoring, or security optimization requests.
 
 ---
 
-📬 التواصل
+## 📄 Open-Source Framework Licensing
+This project is open-source and structured to adapt seamlessly to collaborative ecosystem software open-source licenses (PiOS / MIT), ensuring the codebase remains protected as a shared public utility asset.
 
-للاستفسارات، يرجى فتح مشكلة (Issue) على GitHub أو التواصل عبر قنوات التواصل الاجتماعي المخصصة.
+---
+
+## 👥 Lead Organization & Outreach
+*   **Organization:** Arab Eagle Company (A.E.C)
+*   **Principal Investigator:** Mayass Ali (Web3 Research Analyst, Founder of Pi Network Yemen & Chief Ambassador of GCV Arabia Network)
+*   **Inquiries:** Please open an official Technical Issue tracking ticket on this GitHub repository for rapid architectural feedback.
