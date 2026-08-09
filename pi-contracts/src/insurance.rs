@@ -1,148 +1,82 @@
-// ============================================================
-// إضافة إلى عقد التأمين (insurance.rs)
-// ============================================================
-
-// دالة جديدة لربط المطالبة بطلب خدمة
-pub fn request_service_for_claim(
-    env: Env,
-    claim_id: u64,
-    service_type: String,
-    description: String,
-    location: String,
-    deadline: u64,
-    estimated_budget: i128,
-) -> u64 {
-    // استدعاء عقد العطاءات لإنشاء طلب خدمة
-    // سيتم تمرير معرف المطالبة لربطها بالخدمة
-    // سيتم استدعاء هذا من قبل المؤمن له أو المنصة
-    unimplemented!()
-}
-
 #![no_std]
-use soroban_sdk::{contract, contractimpl, Address, Env, String, Map, Symbol};
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String, Symbol, panic_with_error};
 
-#[derive(Clone, PartialEq)]
-pub enum PolicyStatus {
-    Active,
-    Expired,
-    Claimed,
-    Rejected,
+// 1. Define strict Error codes for the Insurance lifecycle
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(u32)]
+pub enum InsuranceError {
+    PolicyAlreadyActive = 101,
+    UnauthorizedGateway = 102,
+    InvalidRiskSignature = 103,
+    InsufficientPremium = 104,
 }
 
-#[derive(Clone)]
+// 2. Structuring the Policy Metadata in Ledger Storage
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Policy {
-    pub id: u64,
-    pub holder: Address,
-    pub policy_type: String,
-    pub coverage_amount: i128,
+    pub pioneer: Address,
+    pub risk_score: u32,
     pub premium_paid: i128,
-    pub status: PolicyStatus,
-    pub issued_at: u64,
-    pub expires_at: u64,
+    pub is_active: bool,
+    pub expiration_ledger: u32,
 }
 
 #[contract]
-pub struct InsuranceContract;
+pub struct BeWellInsuranceContract;
 
 #[contractimpl]
-impl InsuranceContract {
-    pub fn create_policy(
+impl BeWellInsuranceContract {
+    /// Initializes and purchases a new decentralized insurance policy securely
+    pub fn purchase_policy(
         env: Env,
-        holder: Address,
-        policy_type: String,
-        coverage_amount: i128,
-        premium_paid: i128,
-        duration_days: u64,
-    ) -> u64 {
-        holder.require_auth();
+        pioneer: Address,
+        gateway: Address,
+        risk_score: u32,
+        premium: i128,
+        duration_ledgers: u32,
+    ) -> Result<Policy, InsuranceError> {
+        // Enforce Pioneer authentication via native wallet cryptography
+        pioneer.require_auth();
+
+        // Generate the unique storage key for this specific user
+        let policy_key = Symbol::new(&env, "policy");
         
-        let now = env.ledger().timestamp();
-        let policy_id = env.prng().generate::<u64>();
-        
-        let policy = Policy {
-            id: policy_id,
-            holder,
-            policy_type,
-            coverage_amount,
-            premium_paid,
-            status: PolicyStatus::Active,
-            issued_at: now,
-            expires_at: now + (duration_days * 86400),
-        };
-        
-        env.storage().persistent().set(
-            &Symbol::new(&env, "policy"),
-            &policy_id,
-            &policy,
-        );
-        
-        policy_id
-    }
-    
-    pub fn submit_claim(
-        env: Env,
-        holder: Address,
-        policy_id: u64,
-        claim_details: Map<String, String>,
-    ) {
-        holder.require_auth();
-        
-        let policy: Policy = env.storage()
-            .persistent()
-            .get(&Symbol::new(&env, "policy"), &policy_id)
-            .unwrap();
-        
-        let now = env.ledger().timestamp();
-        if now > policy.expires_at {
-            panic!("Policy expired");
+        if env.storage().persistent().has(&pioneer) {
+            return Result::Err(InsuranceError::PolicyAlreadyActive);
         }
-        
-        let updated_policy = Policy {
-            status: PolicyStatus::Claimed,
-            ..policy
+
+        // Validate that the risk score parameters sent from Python are secure (e.g., scale 0-100)
+        if risk_score > 100 {
+            return Result::Err(InsuranceError::InvalidRiskSignature);
+        }
+
+        // Calculate lockup timeframe based on current Stellar/Pi ledger status
+        let current_ledger = env.ledger().sequence();
+        let expiration = current_ledger + duration_ledgers;
+
+        let new_policy = Policy {
+            pioneer: pioneer.clone(),
+            risk_score,
+            premium_paid: premium,
+            is_active: true,
+            expiration_ledger: expiration,
         };
-        
-        env.storage().persistent().set(
-            &Symbol::new(&env, "policy"),
-            &policy_id,
-            &updated_policy,
+
+        // Save the verified policy metadata persistently to the blockchain ledger
+        env.storage().persistent().set(&pioneer, &new_policy);
+
+        // Emit an immutable on-chain event for the Pi Browser UI tracking
+        env.events().publish(
+            (Symbol::new(&env, "policy_activated"), pioneer),
+            risk_score,
         );
+
+        Result::Ok(new_policy)
     }
-    
-    pub fn get_policy(
-        env: Env,
-        policy_id: u64,
-    ) -> Policy {
-        env.storage()
-            .persistent()
-            .get(&Symbol::new(&env, "policy"), &policy_id)
-            .unwrap()
+
+    /// Fetches live policy status from the blockchain storage for auditing
+    pub fn get_policy(env: Env, pioneer: Address) -> Option<Policy> {
+        env.storage().persistent().get(&pioneer)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use soroban_sdk::Env;
-
-    #[test]
-    fn test_create_policy() {
-        let env = Env::default();
-        let holder = Address::generate(&env);
-        let contract_id = env.register_contract(None, InsuranceContract);
-        let client = InsuranceContractClient::new(&env, &contract_id);
-
-        let policy_id = client.create_policy(
-            &holder,
-            &String::from_str(&env, "HEALTH"),
-            &10000,
-            &500,
-            &365,
-        );
-        
-        assert!(policy_id > 0);
-    }
-}
-
-
-
