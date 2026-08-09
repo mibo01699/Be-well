@@ -1,0 +1,55 @@
+#![cfg(test)]
+use soroban_sdk::{Env, Address, String, i128};
+use soroban_sdk::testutils::{Address as _, Env as _};
+use crate::orchestrator::OrchestratorContract;
+
+#[test]
+fn test_full_workflow() {
+    // 1. تهيئة البيئة والمستخدمين
+    let env = Env::default();
+    let holder = Address::generate(&env);
+    let provider = Address::generate(&env); // مزود خدمة (سيتم تسجيله عبر KYB)
+
+    // 2. شراء وثيقة تأمين
+    let policy_id = OrchestratorContract::purchase_policy(
+        env.clone(),
+        holder.clone(),
+        String::from_str(&env, "CAR"),
+        i128::from(50000u32),
+        i128::from(2000u32),
+        100_000_000u64,
+        String::from_str(&env, "terms_hash_example"),
+    );
+
+    // 3. تقديم مطالبة وطلب خدمة
+    let request_id = OrchestratorContract::submit_claim_and_request_service(
+        env.clone(),
+        policy_id,
+        holder.clone(),
+        i128::from(15000u32),
+        String::from_str(&env, "accident_report_hash"),
+        (i128::from(1234567890), i128::from(9876543210)),
+        String::from_str(&env, "تصليح مركبة بعد حادث"),
+        String::from_str(&env, "صنعاء، اليمن"),
+        100_000_000u64,
+        i128::from(16000u32),
+    );
+
+    // 4. محاكاة تقديم عطاء من مزود الخدمة
+    // (سيتم استدعاء BiddingContract مباشرة، لكن في الاختبار نتحقق من الحالة فقط)
+    
+    // 5. التحقق من حالة العملية بعد كل خطوة
+    let status = OrchestratorContract::get_process_status(env.clone(), policy_id);
+    assert_eq!(status, Symbol::new(&env, "S_REQ")); // PROCESS_STATUS_SERVICE_REQUESTED
+
+    // 6. محاكاة إغلاق العطاءات واختيار الفائز
+    // (سيتم استدعاؤه من قبل holder)
+    // OrchestratorContract::award_service(env.clone(), policy_id, request_id, holder.clone());
+
+    // 7. محاكاة إتمام الخدمة والدفع
+    // OrchestratorContract::confirm_service_and_pay(env.clone(), policy_id, request_id, provider, String::from_str(&env, "completion_hash"));
+    
+    // 8. التحقق من الحالة النهائية
+    // let final_status = OrchestratorContract::get_process_status(env, policy_id);
+    // assert_eq!(final_status, Symbol::new(&env, "SETL")); // PROCESS_STATUS_SETTLED
+}
