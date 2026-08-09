@@ -65,3 +65,30 @@ To adhere to Pi Network privacy requirements, raw biometric inputs (Face ID, fin
 ## كيفية المساهمة
 
 نرحب بمساهمات المجتمع في تطوير الأكواد، كتابة الاختبارات، وتقديم الملاحظات. راجع ملف `CONTRIBUTING.md` للمزيد من التفاصيل.
+
+## 🧠 Orchestrator Contract – The Brain of Be-Well
+
+The **Orchestrator Contract** is the central coordination point for the entire Be-Well platform. It acts as a single, unified interface for all frontend applications and manages the complex workflows that involve multiple other smart contracts (Insurance, Bidding, Payment, Shares, Vaults).
+
+### Key Responsibilities
+
+1.  **Workflow Orchestration:** Manages the end-to-end process from policy purchase to claim settlement.
+2.  **State Management:** Tracks the status of each process (e.g., Policy Active, Claim Submitted, Service Requested, Awarded, Settled, Disputed).
+3.  **Atomic Operations:** Ensures that all steps in a workflow are completed successfully, preventing inconsistencies.
+4.  **Unified API:** Provides a single set of functions for the frontend to interact with, abstracting the complexity of calling individual contracts.
+
+### Main Functions
+
+- `purchase_policy()` – Initiates a new insurance policy.
+- `submit_claim_and_request_service()` – Handles a claim and creates a service request.
+- `award_service()` – Selects the winning bid and finalizes the contract.
+- `confirm_service_and_pay()` – Confirms service completion and triggers the payment.
+- `raise_dispute()` – Allows users to open a dispute for manual review.
+- `get_process_status()` – Retrieves the current status of any process.
+
+### Benefits of This Architecture
+
+- **Simplified Frontend:** Developers only need to interact with one contract.
+- **Enhanced Security:** Prevents race conditions and partial completions.
+- **Improved Maintainability:** Changes to business logic are isolated to a single contract.
+- **Full Traceability:** Every step of a process is recorded on-chain.
