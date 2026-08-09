@@ -1,5 +1,5 @@
 # Be-Well Protocol: Decentralized Parametric Insurance Utility
-**Technical Whitepaper v2.5 (Updated with Core Liquidity Frameworks)**  
+**Technical Whitepaper v2.5**  
 **Author:** Arab Eagle Company (A.E.C)  
 **Principal Architect:** Mayass Ali  
 
@@ -7,6 +7,8 @@
 
 ## 1. Abstract
 The Be-Well Protocol introduces a non-speculative, decentralized parametric micro-insurance infrastructure engineered natively for high-throughput WebAssembly (WASM) ecosystem runtimes utilizing the Soroban Smart Contract Engine. By unifying autonomous on-chain ledger computation with decentralized machine learning risk modeling, Be-Well completely automates the policy underwriting, liquidity sourcing, and claims micro-routing lifecycles. Operating under zero-speculation tokenomics, the protocol converts systemic decentralized financial risk into programmatic community-backed safety nets.
+
+---
 
 ## 2. Advanced Multi-Layered Technical Architecture
 Be-Well utilizes a modular, decoupled tri-layer engineering architecture designed to guarantee sub-second execution speeds, cryptographic execution integrity, and complete compliance parameters:
@@ -41,17 +43,23 @@ Predictive risk modeling is managed off-chain via a localized Python 3.11 machin
 ### 2.3 Cryptographic Relayer Gateway (`backend/`)
 A hardened Python middleware application operates `api_gateway.py` to bridge the asynchronous gap between Web3 browser environments, the AI subsystem, and the Soroban runtime. The gateway enforces automated multi-signature verification, ensuring that external computational inputs cannot be altered or injected maliciously prior to ledger settlement.
 
+---
+
 ## 3. Mathematical Liquidity & Risk Provisions
 To achieve perfect systemic stability under native ecosystem constraints, Be-Well isolates its risk pools into decentralized fractional capital reserves governed by the `shares.rs` protocol:
 1. **Liquidity Ingestion:** Backers deposit capital directly into the pool, minting utility shares 1:1 against the deposited baseline liquidity.
 2. **Dynamic Underwriting Interlock:** Premium values are computed via the PyTorch backend using specific user risk variables, and are automatically escrowed via the `insurance.rs` smart contract.
 3. **Anti-Run Protections:** All deposited liquidity is subject to structural block-based timelocks. Withdrawals are prohibited until the expiration ledger parameters clear, protecting policyholders from unexpected liquidity crunches.
 
+---
+
 ## 4. Core Directives & Ecosystem Compliance
 In strict conformity with modern decentralized framework regulations, Be-Well implements an absolute **zero-speculation model**:
 1.  **Anti-Speculative Core:** The protocol completely rejects inflationary token generation, initial coin offerings, or secondary trading mechanics. It operates entirely as a transactional performance public good utility.
 2.  **Privacy Preservation:** User records are localized. The protocol links exclusively with cryptographic hashes provided by verified ecosystem consensus identity modules, adhering fully to cross-border data protection requirements.
 3.  **Capital Liquidity Protections:** Mutual risk pools are governed via on-chain timelocks, protecting community capital from sudden drainage and ensuring maximum premium availability for automated claim settlements.
+
+---
 
 ## 5. Operational Roadmap
 *   **Phase 1 (Sandbox Pilot):** Compilation optimization against Protocol 26 WASM standards, and localization testing via internal engineering sandboxes.
