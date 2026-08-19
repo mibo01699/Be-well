@@ -85,3 +85,28 @@ const PiInsuranceSDK = {
 document.addEventListener("DOMContentLoaded", () => {
     PiInsuranceSDK.init();
 });
+
+/**
+ * قالب دمج Pi SDK الرسمي لمنصة Be-Well في استوديو التطبيقات (الوضع التجريبي لجمهور Pi)
+ */
+const PiInsuranceSDK = {
+    init: async function() {
+        try {
+            await window.Pi.init({ version: "2.0", sandbox: true });
+            console.log("🚀 Pi SDK Initialized inside Sandbox Mode.");
+            await this.authenticateUser();
+        } catch (error) {
+            console.error("Pi SDK configuration error:", error);
+        }
+    },
+
+    authenticateUser: async function() {
+        const scopes = ['username', 'payments', 'wallet_address'];
+        const authResult = await window.Pi.authenticate(scopes, (payment) => {
+            console.log("Incomplete payment found:", payment);
+        });
+        console.log("Connected Pi User:", authResult.user.username);
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => PiInsuranceSDK.init());
