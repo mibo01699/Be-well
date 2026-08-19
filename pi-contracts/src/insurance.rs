@@ -1,82 +1,50 @@
-#![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String, Symbol, panic_with_error};
+// pi-contracts/src/insurance.rs
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String};
 
-// 1. Define strict Error codes for the Insurance lifecycle
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-#[repr(u32)]
-pub enum InsuranceError {
-    PolicyAlreadyActive = 101,
-    UnauthorizedGateway = 102,
-    InvalidRiskSignature = 103,
-    InsufficientPremium = 104,
-}
-
-// 2. Structuring the Policy Metadata in Ledger Storage
 #[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Policy {
-    pub pioneer: Address,
-    pub risk_score: u32,
-    pub premium_paid: i128,
+    pub holder: Address,
+    pub premium: u128,
+    pub lock_until: u64, // الطابع الزمني لانتهاء القفل التأميني
     pub is_active: bool,
-    pub expiration_ledger: u32,
 }
+
+const THREE_YEARS_IN_SECONDS: u64 = 94_608_000; // 3 * 365 * 24 * 60 * 60
 
 #[contract]
 pub struct BeWellInsuranceContract;
 
 #[contractimpl]
 impl BeWellInsuranceContract {
-    /// Initializes and purchases a new decentralized insurance policy securely
-    pub fn purchase_policy(
-        env: Env,
-        pioneer: Address,
-        gateway: Address,
-        risk_score: u32,
-        premium: i128,
-        duration_ledgers: u32,
-    ) -> Result<Policy, InsuranceError> {
-        // Enforce Pioneer authentication via native wallet cryptography
-        pioneer.require_auth();
-
-        // Generate the unique storage key for this specific user
-        let policy_key = Symbol::new(&env, "policy");
+    // إنشاء البوليصة وتفعيل قفل السيولة لـ 3 سنوات وفق شروط Pi
+    pub fn create_policy(env: Env, holder: Address, premium_amount: u128) -> bool {
+        holder.require_auth();
         
-        if env.storage().persistent().has(&pioneer) {
-            return Result::Err(InsuranceError::PolicyAlreadyActive);
-        }
+        let current_time = env.ledger().timestamp();
+        let release_time = current_time + THREE_YEARS_IN_SECONDS;
 
-        // Validate that the risk score parameters sent from Python are secure (e.g., scale 0-100)
-        if risk_score > 100 {
-            return Result::Err(InsuranceError::InvalidRiskSignature);
-        }
-
-        // Calculate lockup timeframe based on current Stellar/Pi ledger status
-        let current_ledger = env.ledger().sequence();
-        let expiration = current_ledger + duration_ledgers;
-
-        let new_policy = Policy {
-            pioneer: pioneer.clone(),
-            risk_score,
-            premium_paid: premium,
+        let policy = Policy {
+            holder: holder.clone(),
+            premium: premium_amount,
+            lock_until: release_time,
             is_active: true,
-            expiration_ledger: expiration,
         };
 
-        // Save the verified policy metadata persistently to the blockchain ledger
-        env.storage().persistent().set(&pioneer, &new_policy);
-
-        // Emit an immutable on-chain event for the Pi Browser UI tracking
-        env.events().publish(
-            (Symbol::new(&env, "policy_activated"), pioneer),
-            risk_score,
-        );
-
-        Result::Ok(new_policy)
+        // حفظ بيانات البوليصة بشكل آمن في البلوكشين
+        env.storage().persistent().set(&holder, &policy);
+        true
     }
 
-    /// Fetches live policy status from the blockchain storage for auditing
-    pub fn get_policy(env: Env, pioneer: Address) -> Option<Policy> {
-        env.storage().persistent().get(&pioneer)
+    // التحقق من حالة قفل الـ 3 سنوات (يمنع السحب قبل انتهاء المدة)
+    pub fn verify_insurance_lock(env: Env, holder: Address) -> bool {
+        if let Some(policy) = env.storage().persistent().get::<Address, Policy>(&holder) {
+            let current_time = env.ledger().timestamp();
+            if current_time < policy.lock_until {
+                return false; // السيولة لا تزال مقفلة بحكم العقد الذكي
+            }
+            return true;
+        }
+        false
     }
 }
