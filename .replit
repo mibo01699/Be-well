@@ -1,8 +1,8 @@
-modules = ["nodejs-20", "python-3.11", "rust"]
-run = "python ai-backend/app.py & node backend/api_gateway.js"
+run = "npm start"
+entrypoint = "index.js"
 
-[nix]
-channel = "stable-23_11"
+[packager]
+language = "nodejs"
 
-[deployment]
-run = ["python", "ai-backend/app.py"]
+[languages.nodejs]
+packageManager = "npm"
