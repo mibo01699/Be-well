@@ -1,0 +1,15 @@
+{
+  "name": "be-well",
+  "version": "1.0.0",
+  "description": "Healthcare Ecosystem Application - A.E.C.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  },
+  "author": "mibo01699",
+  "license": "MIT"
+}
