@@ -1,116 +1,49 @@
-// ============================================================
-// الملف: app.js
-// المسار: Be-well/frontend/app.js
-// الغرض: التفاعل مع واجهات برمجة التطبيقات (APIs) الخلفية
-// ============================================================
+// frontend/app.js
+const BeWellApp = {
+    init: async function() {
+        console.log("Initializing Hybrid Insurance Platform...");
+        await this.connectPiWallet();
+        this.renderUnifiedDashboard();
+    },
 
-const API_BASE = 'http://localhost:8080/api';
+    connectPiWallet: async function() {
+        try {
+            // ربط محفظة Pi الرسمية من خلال Pi Browser SDK
+            const response = await window.Pi.authenticate(['payments', 'username']);
+            this.userWallet = response.user.uid;
+            document.getElementById("wallet-status").innerText = `Connected: ${this.userWallet}`;
+        } catch (error) {
+            console.error("Pi Wallet connection failed", error);
+        }
+    },
 
-// ============================================================
-// عرض الأقسام
-// ============================================================
-function showSection(sectionId) {
-    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-    const section = document.getElementById(sectionId);
-    if (section) section.classList.add('active');
-}
+    renderUnifiedDashboard: function() {
+        // عرض البيانات المالية الموحدة والغطاء التأميني المشترك مع BIGISH-YER
+        const dashboardHtml = `
+            <div class="card">
+                <h3>لوحة التحكم الموحدة (Be-Well & YER)</h3>
+                <p>رصيد المحفظة التأميني: <span id="yer-balance">0.00 YER</span></p>
+                <p>حالة التوثيق (Identity): <span id="kyc-status">Verified (Individual)</span></p>
+                <button onclick="BeWellApp.triggerDigitalDoctor()">استشارة الطبيب الرقمي AI</button>
+            </div>
+        `;
+        document.getElementById("app-container").innerHTML = dashboardHtml;
+    },
 
-// ============================================================
-// شراء وثيقة تأمين
-// ============================================================
-document.getElementById('policy-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const resultDiv = document.getElementById('policy-result');
-    resultDiv.textContent = '⏳ جاري المعالجة...';
-
-    const data = {
-        holder_address: document.getElementById('holder-address').value,
-        policy_type: document.getElementById('policy-type').value,
-        coverage_amount: parseInt(document.getElementById('coverage').value),
-        premium: parseInt(document.getElementById('premium').value),
-        expiry_date: Math.floor(Date.now() / 1000) + 31536000, // سنة واحدة
-        terms_hash: 'terms_hash_example'
-    };
-
-    try {
-        const res = await fetch(`${API_BASE}/purchase-policy`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        resultDiv.textContent = JSON.stringify(result, null, 2);
-    } catch (err) {
-        resultDiv.textContent = `❌ خطأ: ${err.message}`;
+    triggerDigitalDoctor: async function() {
+        // واجهة تفاعلية مع الطبيب الرقمي والمساعد الذكي GavAiSupportSystem.js
+        const userSymptom = prompt("مرحباً بك في نظام الدعم الذكي، كيف تشعر اليوم؟");
+        if (userSymptom) {
+            document.getElementById("ai-support-logs").innerText = "جاري تحليل المؤشرات السلوكية والصحية...";
+            const aiResponse = await fetch('/api/v1/ai/digital-doctor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ symptom: userSymptom, wallet: this.userWallet })
+            });
+            const result = await aiResponse.json();
+            alert(`توصية الطبيب الرقمي: ${result.advice}\nتم جدولة تذكير وقائي لموعدك القادم.`);
+        }
     }
-});
+};
 
-// ============================================================
-// تقديم مطالبة وطلب خدمة
-// ============================================================
-document.getElementById('claim-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const resultDiv = document.getElementById('claim-result');
-    resultDiv.textContent = '⏳ جاري المعالجة...';
-
-    const data = {
-        policy_id: parseInt(document.getElementById('claim-policy-id').value),
-        claimant_address: 'GABC123...', // سيتم جلبها من المحفظة
-        claim_amount: parseInt(document.getElementById('claim-amount').value),
-        proof_hash: 'accident_report_hash',
-        gps_lat: 1234567890,
-        gps_lng: 9876543210,
-        service_description: document.getElementById('service-desc').value,
-        service_location: document.getElementById('service-location').value,
-        service_deadline: Math.floor(Date.now() / 1000) + 604800, // أسبوع
-        estimated_budget: parseInt(document.getElementById('claim-amount').value) * 1.5
-    };
-
-    try {
-        const res = await fetch(`${API_BASE}/submit-claim`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        resultDiv.textContent = JSON.stringify(result, null, 2);
-    } catch (err) {
-        resultDiv.textContent = `❌ خطأ: ${err.message}`;
-    }
-});
-
-// ============================================================
-// تقييم المخاطر (AI)
-// ============================================================
-document.getElementById('risk-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const resultDiv = document.getElementById('risk-result');
-    resultDiv.textContent = '⏳ جاري التقييم...';
-
-    const data = {
-        age: parseInt(document.getElementById('age').value),
-        gender: parseInt(document.getElementById('gender').value),
-        pre_existing: parseInt(document.getElementById('pre-existing').value),
-        vehicle_type: parseInt(document.getElementById('vehicle-type').value),
-        region: parseInt(document.getElementById('region').value)
-    };
-
-    try {
-        const res = await fetch(`${API_BASE}/assess-risk`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        resultDiv.textContent = JSON.stringify(result, null, 2);
-    } catch (err) {
-        resultDiv.textContent = `❌ خطأ: ${err.message}`;
-    }
-});
-
-// ============================================================
-// تهيئة العرض عند التحميل
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    showSection('new-policy');
-});
+window.onload = () => BeWellApp.init();
