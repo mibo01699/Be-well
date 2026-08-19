@@ -8,3 +8,4 @@
     pkgs.cargo-audit
   ];
 }
+
