@@ -1,0 +1,48 @@
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Map, String};
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum AuditorRole { Doctor, Accountant }
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct Auditor {
+    address: Address,
+    role: AuditorRole,
+    reputation: u32,
+    total_cases: u32,
+    approved_providers: Map<Address, u32>,
+}
+
+#[contract]
+pub struct AuditGovernanceContract;
+
+#[contractimpl]
+impl AuditGovernanceContract {
+    pub fn register_auditor(env: Env, auditor_addr: Address, role: AuditorRole) {
+        auditor_addr.require_auth();
+        let mut auditors: Map<Address, Auditor> = env.storage().persistent().get(&String::from_str(&env, "auditors")).unwrap_or(Map::new(&env));
+        let new_auditor = Auditor {
+            address: auditor_addr.clone(),
+            role,
+            reputation: 100,
+            total_cases: 0,
+            approved_providers: Map::new(&env),
+        };
+        auditors.set(auditor_addr, new_auditor);
+        env.storage().persistent().set(&String::from_str(&env, "auditors"), &auditors);
+    }
+
+    pub fn check_conflict_of_interest(env: Env, auditor_addr: Address, provider_addr: Address) -> bool {
+        let auditors: Map<Address, Auditor> = env.storage().persistent().get(&String::from_str(&env, "auditors")).unwrap_or(Map::new(&env));
+        if let Some(auditor) = auditors.get(auditor_addr) {
+            if auditor.total_cases > 10 {
+                let approvals = auditor.approved_providers.get(provider_addr).unwrap_or(0);
+                if (approvals * 100) / auditor.total_cases > 40 {
+                    return true; // رصد تحيز وتضارب مصالح
+                }
+            }
+        }
+        false
+    }
+}
