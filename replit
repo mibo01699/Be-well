@@ -1,8 +1,0 @@
-modules = ["nodejs-20", "python-3.11", "rust"]
-run = "python ai-backend/app.py & node backend/api_gateway.js"
-
-[nix]
-channel = "stable-23_11"
-
-[deployment]
-run = ["python", "ai-backend/app.py"]
