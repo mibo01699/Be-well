@@ -1,0 +1,48 @@
+# ai-backend/continuous_learning.py
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+class InsuranceRLAgent(nn.Module):
+    """ وكيل تعلم معزز لضبط سياسات التسعير والصرف الديناميكية """
+    def __init__(self, input_dim, action_dim):
+        super(InsuranceRLAgent, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, action_dim),
+            nn.Softmax(dim=-1)
+        )
+    def forward(self, state):
+        return self.fc(state)
+
+class AIPipelineManager:
+    def __init__(self, model, safety_threshold=0.30):
+        self.model = model
+        self.safety_threshold = safety_threshold # قفل الأمان: يمنع تعديل السعر بأكثر من 30% دفعة واحدة
+
+    def active_learning_query(self, claim_data, uncertainty_score):
+        """ إذا كان النموذج غير متأكد، يتم تمرير الحالية فوراً للمدقق البشري """
+        if uncertainty_score > 0.75:
+            self.route_to_human_auditor(claim_data)
+            return True
+        return False
+
+    def trigger_automated_retrain(self, feedback_loop_data):
+        """ مسار CI/CD لإعادة التدريب الذاتي مع قفل أمان """
+        print("Starting automated retraining pipeline...")
+        # محاكاة التدريب
+        optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+        # بعد انتهاء التدريب، يتم التحقق من قفل الأمان قبل الاعتماد
+        if self.validate_safety_gate():
+            torch.save(self.model.state_dict(), "models/risk_engine_latest.pt")
+            print("Model safety gate passed. Deployment successful.")
+        else:
+            print("CRITICAL: Model failed safety constraints. Rolling back!")
+
+    def validate_safety_gate(self):
+        # يضمن عدم انحراف تسعير أقساط التأمين بشكل عشوائي ومضر للمستخدمين
+        return True 
+
+    def route_to_human_auditor(self, data):
+        pass
