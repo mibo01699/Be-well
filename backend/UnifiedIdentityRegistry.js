@@ -64,3 +64,39 @@ class UnifiedIdentityRegistry {
 }
 
 module.exports = UnifiedIdentityRegistry;
+
+const PiSDK = require('@pi-apps/sdk'); 
+
+class UnifiedIdentityRegistry {
+    constructor(dbInstance, antiDoubleDippingEngine) {
+        this.db = dbInstance;
+        this.antiFraud = antiDoubleDippingEngine;
+    }
+
+    async registerEntity(piUserId, entityType, companyDetails = null) {
+        const piAuthStatus = await PiSDK.getKycStatus(piUserId);
+        if (!piAuthStatus.verified) throw new Error("KYC_NOT_PASSED");
+
+        let registrationData = {
+            piUserId,
+            entityType, // Individual | Company | ServiceProvider
+            verifiedAt: Date.now(),
+            yerWalletAddress: `YER_${piUserId.substring(0, 10).toUpperCase()}_WALLET`
+        };
+
+        if (entityType === 'Company' || entityType === 'ServiceProvider') {
+            if (!companyDetails?.commercialRegister) throw new Error("KYB_DETAILS_MISSING");
+            registrationData.status = 'Pending_Audit';
+        } else {
+            registrationData.status = 'Active';
+        }
+
+        await this.db.saveEntity(registrationData);
+        return registrationData;
+    }
+}
+module.exports = UnifiedIdentityRegistry;
+
+
+
+
