@@ -1,0 +1,58 @@
+{
+  "ar": {
+    "app_name": "تطبيق Be-well الصحي",
+    "welcome": "مرحباً بكم في منصة الرعاية الصحية اللامركزية",
+    "vital_signs": "المؤشرات الحيوية",
+    "status_normal": "المؤشرات مستقرة وضمن النطاق الآمن",
+    "critical_alert": "تحذير حرج: مطلوب تدخل طبي فوري",
+    "pi_payment": "بوابة التسوية المالية الآمنة لشبكة Pi"
+  },
+  "en": {
+    "app_name": "Be-well Health App",
+    "welcome": "Welcome to the Decentralized Healthcare Platform",
+    "vital_signs": "Vital Signs",
+    "status_normal": "Vitals are stable and within safe range",
+    "critical_alert": "Critical Alert: Immediate medical attention required",
+    "pi_payment": "Secure Pi Network Settlement Gateway"
+  },
+  "zh": {
+    "app_name": "Be-well 健康应用",
+    "welcome": "欢迎来到去中心化医疗平台",
+    "vital_signs": "生命体征",
+    "status_normal": "体征 item 稳定，处于安全范围内",
+    "critical_alert": "紧急警报：需要立即就医",
+    "pi_payment": "安全的 Pi Network 结算网关"
+  },
+  "vi": {
+    "app_name": "Ứng dụng Sức khỏe Be-well",
+    "welcome": "Chào mừng đến với Nền tảng Chăm sóc Sức khỏe Phi tập trung",
+    "vital_signs": "Dấu hiệu sinh tồn",
+    "status_normal": "Các chỉ số ổn định và trong phạm vi an toàn",
+    "critical_alert": "Cảnh báo khẩn cấp: Yêu cầu can thiệp y tế ngay lập tức",
+    "pi_payment": "Cổng thanh toán an toàn mạng Pi"
+  },
+  "ko": {
+    "app_name": "Be-well 건강 앱",
+    "welcome": "탈중앙화 헬스케어 플랫폼에 오신 것을 환영합니다",
+    "vital_signs": "생체 징후",
+    "status_normal": "생체 징후가 안정적이며 안전 범위 내에 있습니다",
+    "critical_alert": "심각한 경고: 즉각적인 의료 조치 필요",
+    "pi_payment": "안전한 Pi 네트워크 결제 게이트웨이"
+  },
+  "es": {
+    "app_name": "Aplicación de Salud Be-well",
+    "welcome": "Bienvenido a la Plataforma de Salud Descentralizada",
+    "vital_signs": "Signos Vitales",
+    "status_normal": "Los signos vitales están estables y dentro del rango seguro",
+    "critical_alert": "Alerta Crítica: Se requiere atención médica inmediata",
+    "pi_payment": "Pasarela de Pago Segura de Pi Network"
+  },
+  "fr": {
+    "app_name": "Application de Santé Be-well",
+    "welcome": "Bienvenue sur la Plateforme de Santé Décentralisée",
+    "vital_signs": "Signes Vitaux",
+    "status_normal": "Les signes vitaux sont stables et dans la zone sécurisée",
+    "critical_alert": "Alerte Critique : Intervention médicale immédiate requise",
+    "pi_payment": "Passerelle de Règlement Sécurisée Pi Network"
+  }
+}
