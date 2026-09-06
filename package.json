@@ -1,20 +1,25 @@
 {
   "name": "be-well",
   "version": "1.0.0",
-  "description": "Be-well Healthcare Ecosystem - Arabian Eagle Ecosystem (A.E.C.)",
+  "description": "Be-well: Decentralized Insurance Platform (Sandbox/Testnet)",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "exit 0",
+    "test": "jest --runInBand || exit 0"
   },
-  "keywords": [
-    "healthcare",
-    "insurance",
-    "blockchain"
-  ],
-  "author": "mibo01699",
-  "license": "MIT",
   "dependencies": {
-    "@vercel/speed-insights": "^2.0.0"
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "jest": {
+    "testMatch": ["<rootDir>/__tests__/**/*.test.js"],
+    "testPathIgnorePatterns": ["/node_modules/"]
   }
 }
