@@ -21,6 +21,14 @@ eggs/
 .eggs/
 lib/
 lib64/
+node_modules/
+.env
+.DS_Store
+*.log
+coverage/
+dist/
+build/
+
 parts/
 sdist/
 var/
