@@ -1,0 +1,20 @@
+{
+  "name": "be-well",
+  "version": "1.0.0",
+  "description": "Be-well Healthcare Ecosystem - Arabian Eagle Ecosystem (A.E.C.)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "healthcare",
+    "insurance",
+    "blockchain"
+  ],
+  "author": "mibo01699",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
