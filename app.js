@@ -1,44 +1,67 @@
-// app.js - بوابة تطبيق الصحة الرقمي (Be-well Platform) ضمن منظومة النسر العربي
-const http = require('http');
+// ============================================================
+// الملف: app.js - Be-well Platform (Sandbox/Testnet)
+// الدور: منصة التأمين اللامركزية
+// ============================================================
 
-console.log("🏥 منصة الصحة الرقمية (Be-well) نشطة لبناء Vercel...");
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
-function processMedicalTransaction() {
-    try {
-        const yerScale = 10000000000n; // 10 decimals لعملة YER
-        
-        // محاكاة دفع رسوم معاينة طبية أو دواء مدعوم من صندوق النسر العربي
-        const medicalFeeYER = 350n * yerScale; 
-        
-        if (medicalFeeYER <= 0n) {
-            throw new Error("قيمة المعاملة الطبية غير صالحة");
-        }
+// التفعيلات الأساسية
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-        return {
-            success: true,
-            service: "معاينة طبية ورعاية صحية أولية للأطفال والأمهات",
-            cost_yer: "350 YER",
-            currency_precision: "Strict BigInt Verified"
-        };
-    } catch (err) {
-        return { success: false, error: err.message };
-    }
-}
+// ============================================================
+// نقاط النهاية الأساسية (APIs)
+// ============================================================
 
-const server = http.createServer((req, res) => {
-    const healthResult = processMedicalTransaction();
-    
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({
-        ecosystem_gateway: "بوابة النسر العربي الأم (A.E.C)",
-        application: "منصة الصحة والرعاية الطبية الرقمية (Be-well Platform)",
-        status: "CONNECTED_TO_MAIN_GATEWAY",
-        unicef_health_compliance: "PASSED",
-        transaction_log: healthResult
-    }, null, 2));
+// نقطة الصحة (Health Check)
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'online',
+        service: 'Be-well',
+        version: '1.0.0',
+        sandbox: true,
+        timestamp: new Date().toISOString()
+    });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT);
+// نقطة التوطين (Localization)
+try {
+    const languageManager = require('./locales/languageManager');
+    app.get('/api/localization', (req, res) => {
+        const userLang = req.headers['accept-language'];
+        const data = languageManager.detectAndGetTranslation(userLang);
+        res.json(data);
+    });
+} catch (error) {
+    app.get('/api/localization', (req, res) => {
+        res.json({ message: 'Localization service unavailable', fallback: 'en' });
+    });
+}
 
-module.exports = server;
+// المسار الرئيسي
+app.get('/', (req, res) => {
+    res.json({
+        message: '🦅 Be-well Platform API is running',
+        version: '1.0.0',
+        environment: 'sandbox',
+        endpoints: ['/api/health', '/api/localization']
+    });
+});
+
+// ============================================================
+// ✅ نقطة الدخول لـ Vercel (تصدير التطبيق)
+// ============================================================
+module.exports = app;
+
+// ============================================================
+// تشغيل الخادم محلياً (فقط عند التشغيل المباشر)
+// ============================================================
+if (require.main === module) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🦅 Be-well server running on port ${PORT}`);
+    });
+}
