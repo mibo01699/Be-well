@@ -133,3 +133,6 @@ This project is open-source and structured to adapt seamlessly to collaborative 
 *   **Organization:** Arab Eagle Company (A.E.C)
 *   **Principal Investigator:** Mayass Ali (Web3 Research Analyst, Founder of Pi Network Yemen & Chief Ambassador of GCV Arabia Network)
 *   **Inquiries:** Please open an official Technical Issue tracking ticket on this GitHub repository for rapid architectural feedback.
+
+> **⚠️ Important:** This is a **sandbox/testnet-only prototype**.  
+> It does **NOT** claim official certification or funding from any organization.
